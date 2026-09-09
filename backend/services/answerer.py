@@ -9,13 +9,13 @@ _client: OpenAI | None = None
 
 
 def _get_client() -> OpenAI:
-    """Grok (xAI) exposes an OpenAI-compatible /v1 API, so the same SDK is
-    reused here — just pointed at xAI's base_url with a Grok key."""
+    """Groq exposes an OpenAI-compatible /v1 API, so the same SDK is
+    reused here — just pointed at Groq's base_url with a Groq key."""
     global _client
-    if not settings.grok_api_key:
+    if not settings.groq_api_key:
         raise MissingModelKeyError()
     if _client is None:
-        _client = OpenAI(api_key=settings.grok_api_key, base_url=settings.grok_base_url)
+        _client = OpenAI(api_key=settings.groq_api_key, base_url=settings.groq_base_url)
     return _client
 
 
@@ -35,7 +35,7 @@ def _build_user_message(question: str, chunks: list[dict]) -> str:
 
 
 def generate_answer(question: str, retrieved: list[tuple[dict, float]]) -> tuple[str, list[int]]:
-    """Calls Grok with the retrieved chunks and returns (answer_text,
+    """Calls Groq with the retrieved chunks and returns (answer_text,
     used_chunk_numbers). used_chunk_numbers are 1-indexed positions into the
     `retrieved` list, as reported by the model."""
     chunks = [c for c, _ in retrieved]
