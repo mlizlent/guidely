@@ -3,60 +3,104 @@ from fastapi.responses import JSONResponse
 
 
 class GuidelyError(Exception):
-    """Base class for all handled application errors. Carries an error code
-    and HTTP status so the API always returns a clean, predictable JSON body."""
+    """Base exception carrying the HTTP status and stable API error code."""
 
-    def __init__(self, code: str, message: str, status_code: int = 400):
-        self.code = code
-        self.message = message
-        self.status_code = status_code
-        super().__init__(message)
-
-
-class EmptyQueryError(GuidelyError):
-    def __init__(self):
-        super().__init__("empty_query", "Query cannot be empty.", 400)
-
-
-class MissingModelKeyError(GuidelyError):
-    def __init__(self):
-        super().__init__("missing_model_key", "No LLM/embedding API key is configured.", 503)
-
-
-class UnsupportedFileError(GuidelyError):
-    def __init__(self, filename: str):
-        super().__init__("unsupported_file", f"'{filename}' is not a supported file type.", 422)
-
-
-class CorruptedFileError(GuidelyError):
-    def __init__(self, filename: str):
-        super().__init__("corrupted_file", f"Could not read '{filename}' — the file may be corrupted.", 422)
-
-
-class NoResultsError(GuidelyError):
-    def __init__(self):
-        super().__init__("no_results", "No relevant documents were found for this question.", 404)
-
-
-class ModelTimeoutError(GuidelyError):
-    def __init__(self):
-        super().__init__("model_timeout", "The language model took too long to respond.", 504)
+    def __init__(
+        self,
+        message: str = "Guidely request failed.",
+        status_code: int = 500,
+        code: str = "GUIDELY_ERROR",
+    ) -> None:
+        self.message = str(message)
+        self.status_code = int(status_code)
+        self.code = str(code)
+        super().__init__(self.message)
 
 
 class DocumentNotFoundError(GuidelyError):
-    def __init__(self, doc_id: str):
-        super().__init__("document_not_found", f"Document '{doc_id}' was not found.", 404)
+    def __init__(self, doc_id: str | None = None) -> None:
+        message = (
+            f"Document '{doc_id}' was not found."
+            if doc_id is not None
+            else "The requested document was not found."
+        )
+        super().__init__(message, status_code=404, code="DOCUMENT_NOT_FOUND")
+
+
+class EmptyQueryError(GuidelyError):
+    def __init__(self) -> None:
+        super().__init__(
+            "Query text cannot be empty.",
+            status_code=400,
+            code="EMPTY_QUERY",
+        )
+
+
+class MissingModelKeyError(GuidelyError):
+    def __init__(self) -> None:
+        super().__init__(
+            "No model API key is configured.",
+            status_code=500,
+            code="MISSING_MODEL_KEY",
+        )
+
+
+class ModelTimeoutError(GuidelyError):
+    def __init__(self) -> None:
+        super().__init__(
+            "The language model request timed out.",
+            status_code=504,
+            code="MODEL_TIMEOUT",
+        )
+
+
+# The document pipeline uses these additional domain errors. Keeping them here
+# ensures every application error is rendered through the same JSON contract.
+class UnsupportedFileError(GuidelyError):
+    def __init__(self, filename: str) -> None:
+        super().__init__(
+            f"File type for '{filename}' is not supported.",
+            status_code=422,
+            code="UNSUPPORTED_FILE",
+        )
+
+
+class CorruptedFileError(GuidelyError):
+    def __init__(self, filename: str) -> None:
+        super().__init__(
+            f"File '{filename}' could not be read or parsed.",
+            status_code=422,
+            code="CORRUPTED_FILE",
+        )
+
+
+class NoResultsError(GuidelyError):
+    def __init__(self) -> None:
+        super().__init__(
+            "No indexed documents are available for this query.",
+            status_code=404,
+            code="NO_RESULTS",
+        )
 
 
 async def guidely_error_handler(request: Request, exc: GuidelyError) -> JSONResponse:
+    """Render handled domain errors without leaking implementation details."""
+
+    del request
     return JSONResponse(
         status_code=exc.status_code,
-        content={"error": {"code": exc.code, "message": exc.message}},
+        content={"error": exc.code, "message": str(exc)},
     )
 
 
 async def unhandled_error_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Render unexpected failures with a stable, non-sensitive response."""
+
+    del request, exc
     return JSONResponse(
         status_code=500,
-        content={"error": {"code": "internal_error", "message": "Something went wrong. Please try again."}},
+        content={
+            "error": "INTERNAL_SERVER_ERROR",
+            "message": "An unexpected error occurred.",
+        },
     )
