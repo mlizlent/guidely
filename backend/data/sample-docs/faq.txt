@@ -1,0 +1,31 @@
+# Guidely — Frequently Asked Questions
+
+Welcome to the Guidely knowledge base. This document answers common questions
+about working at Guidely. For questions not covered here, ask your manager or
+open a ticket in the internal helpdesk.
+
+## Working hours
+Standard working hours are 9:00 AM to 5:00 PM, Monday through Friday. Core
+collaboration hours are 10:00 AM to 4:00 PM, during which everyone is expected
+to be reachable for meetings and Slack. Flexible start and end times are
+available with manager approval.
+
+## Remote work
+Employees may work remotely up to three days per week. Remote days must be
+scheduled in advance and communicated to the team. Employees on remote days
+should be reachable by chat, email, and video call during core hours.
+
+## Equipment
+The engineering team provides a laptop, external monitor, keyboard, and
+mouse. Personal equipment purchases require pre-approval from finance. Software
+requests are handled through the IT request form.
+
+## IT support
+For login issues, printer problems, or software installation help, contact
+IT support at it-support@guidely.com or open a ticket in the helpdesk. Most
+requests are resolved within one business day.
+
+## Time off
+Vacation, sick leave, and holidays are governed by the company policy
+document. Submit time-off requests at least two weeks in advance through the
+HR portal.
