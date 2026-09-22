@@ -1,0 +1,42 @@
+# Guidely — Company Policy
+
+This document outlines Guidely's company policies. All employees are expected
+to read and follow these rules. Managers may clarify any policy with HR.
+
+## Code of conduct
+Treat colleagues with respect, act with integrity, and keep confidential
+information private. Harassment, discrimination, and retaliation are not
+tolerated and may result in disciplinary action up to and including
+termination.
+
+## Remote work
+Employees may work remotely up to three days per week with manager approval.
+During core collaboration hours, 10:00 AM to 4:00 PM, remote employees must be
+reachable by chat, email, and video call. Employees are responsible for a quiet
+workspace and reliable internet while working remotely.
+
+## Vacation and sick leave
+Employees accrue vacation days based on tenure and may request time off at
+least two weeks in advance through the HR portal. Sick leave may be taken
+short notice when illness prevents work. Extended medical leave requires
+documentation and coordination with HR.
+
+## Expense reimbursement
+Submit expenses through the finance portal within 30 days of incurring the
+cost. Include receipts for amounts over $25. Pre-approval is required for
+equipment purchases over $500. Reimbursement is processed bi-weekly.
+
+## Information security
+Do not share credentials, use personal file-sharing services for company
+data, or send sensitive information over unapproved channels. Report suspected
+security incidents to IT immediately.
+
+## Conflict of interest
+Employees must disclose any outside business, investment, or relationship
+that could influence their decisions at Guidely. Disclosures are reviewed by
+the compliance team and kept confidential.
+
+## Reporting violations
+Concerns about policy violations may be reported to a manager, HR, or through
+the anonymous ethics hotline. All reports are investigated promptly and
+confidentially.
