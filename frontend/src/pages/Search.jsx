@@ -8,10 +8,9 @@ import { Modal } from '../components/ui/Modal';
 import { Spinner, PageLoader } from '../components/ui/Spinner';
 import { PageHeader } from '../components/layout/Header';
 import { useToastHelpers } from '../components/ui/Toast';
-import './Search.css';
 
 export function Search() {
-  const { success, error, info } = useToastHelpers();
+  const { success, error, info, warning } = useToastHelpers();
 
   // State
   const [query, setQuery] = useState('');
