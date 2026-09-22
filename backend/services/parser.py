@@ -55,7 +55,7 @@ def _read_text_fallback(file_path: Path) -> str:
     # A BOM gives an unambiguous signal for UTF encodings. Try those before
     # generic single-byte fallbacks so UTF-16 text is not misread as NUL-heavy
     # UTF-8.
-    for encoding in _BOM_ENCODINGS:
+    for _bom, encoding in _BOM_ENCODINGS:
         try:
             decoded = raw.decode(encoding)
         except UnicodeDecodeError:
