@@ -5,7 +5,6 @@ import { Badge } from '../components/ui/Badge';
 import { Spinner, PageLoader } from '../components/ui/Spinner';
 import { PageHeader } from '../components/layout/Header';
 import { useToastHelpers } from '../components/ui/Toast';
-import './Metrics.css';
 
 export function Metrics() {
   const { error, warning } = useToastHelpers();
