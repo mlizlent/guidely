@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
@@ -10,44 +10,6 @@ BACKEND_DIR = Path(__file__).resolve().parent.parent
 def _split_csv(value: str) -> list[str]:
     """Split a comma-separated string into a trimmed list."""
     return [item.strip() for item in value.split(",") if item.strip()]
-
-
-class _CorsEnvSettingsSource(PydanticBaseSettingsSource):
-    """Read ``CORS_ORIGINS`` from the environment as a comma-separated list.
-
-    pydantic-settings 2.15 treats ``list[str]`` fields read from ``.env`` as
-    complex values and tries to JSON-decode them before the model validator
-    runs, which fails on plain comma-separated strings. This source parses the
-    raw value first so the default JSON path is never reached.
-    """
-
-    def __init__(self, settings_cls) -> None:
-        super().__init__(settings_cls)
-        self._raw = self._read_raw()
-
-    def _read_raw(self) -> dict[str, str]:
-        import os
-
-        raw: dict[str, str] = {}
-        for env_name in ("CORS_ORIGINS",):
-            if env_name in os.environ:
-                raw[env_name] = os.environ[env_name]
-        return raw
-
-    def get_field_value(self, field, field_name):
-        raw_value = self._raw.get("CORS_ORIGINS")
-        if raw_value is None or field_name != "cors_origins":
-            return None, field_name, False
-        return raw_value, field_name, True
-
-    def prepare_field_value(self, field_name, field, value, value_is_complex):
-        return value
-
-    def __call__(self) -> dict[str, object]:
-        raw_value = self._raw.get("CORS_ORIGINS")
-        if raw_value is None:
-            return {}
-        return {"cors_origins": _split_csv(raw_value)}
 
 
 class Settings(BaseSettings):
@@ -95,29 +57,9 @@ class Settings(BaseSettings):
     @field_validator("chunk_overlap_chars")
     @classmethod
     def validate_overlap(cls, value: int, info) -> int:
-        # ``chunk_size_chars`` has already been validated when the model is built.
         if "chunk_size_chars" in info.data and value >= info.data["chunk_size_chars"]:
             raise ValueError("chunk_overlap_chars must be smaller than chunk_size_chars")
         return value
-
-    @classmethod
-    def settings_customise_sources(
-        cls,
-        settings_cls,
-        init_settings,
-        env_settings,
-        dotenv_settings,
-        file_secret_settings,
-    ):
-        # Run our parser before the standard env/dotenv sources so the raw
-        # comma-separated string never reaches the JSON decoder.
-        return (
-            init_settings,
-            _CorsEnvSettingsSource(settings_cls),
-            env_settings,
-            dotenv_settings,
-            file_secret_settings,
-        )
 
 
 settings = Settings()
