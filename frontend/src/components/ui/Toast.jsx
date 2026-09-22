@@ -9,7 +9,7 @@ const memoryState = { toasts: [] };
 
 function dispatch(action) {
   memoryState.toasts = reducer(memoryState.toasts, action);
-  listeners.forEach((listener) => listener(memoryState.toasts));
+  listeners.forEach((listener) => listener(memoryState));
 }
 
 function reducer(state, action) {
