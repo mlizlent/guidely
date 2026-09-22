@@ -5,12 +5,12 @@ import { Documents } from './pages/Documents';
 import { Search } from './pages/Search';
 import { Indexing } from './pages/Indexing';
 import { Metrics } from './pages/Metrics';
-import './App.css';
+
 
 function App() {
   return (
     <ToastProvider>
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/" element={<Navigate to="/documents" replace />} />
           <Route element={<Layout />}>
