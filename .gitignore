@@ -1,0 +1,28 @@
+# ---- Environment variables (never commit real secrets) ----
+.env
+.env.*
+!.env.example
+
+# ---- Dependencies ----
+node_modules/
+
+# ---- Build output ----
+dist/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+ragenv/
+
+# ---- App runtime data (stored files, index, logs) ----
+backend/data/uploads/
+backend/data/index/
+backend/data/*.jsonl
+
+# ---- Logs ----
+*.log
+
+# ---- OS / editor ----
+.DS_Store
