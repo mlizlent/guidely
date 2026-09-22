@@ -10,7 +10,6 @@ import { Table, Pagination } from '../components/ui/Table';
 import { Spinner } from '../components/ui/Spinner';
 import { PageHeader } from '../components/layout/Header';
 import { useToastHelpers } from '../components/ui/Toast';
-import './Documents.css';
 
 const STATUS_OPTIONS = [
   { value: 'uploaded', label: 'Uploaded' },
