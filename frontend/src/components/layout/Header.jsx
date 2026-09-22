@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button, IconButton } from '../ui/Button';
 import { Input } from '../ui/Input';
-import './Header.css';
 
 export function Header({ onMenuClick, title, children }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,34 +19,34 @@ export function Header({ onMenuClick, title, children }) {
   }, []);
 
   return (
-    <header className="header" role="banner">
-      <div className="header__left">
+    <header className="sticky top-0 z-50 h-16 bg-[rgba(13,11,20,0.8)] backdrop-blur-md border-b border-[#2d2840] flex items-center justify-between px-6 gap-6" role="banner">
+      <div className="flex items-center gap-4 flex-shrink-0">
         <button
           type="button"
-          className="header__menu-btn"
+          className="lg:hidden flex items-center justify-center w-10 h-10 border-none bg-[#1e1b2e] rounded-[10px] text-[#b8b0cc] cursor-pointer transition-all duration-150 ease"
           onClick={onMenuClick}
           aria-label="Toggle menu"
           aria-expanded="false"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5" aria-hidden="true">
             <line x1="3" y1="12" x2="21" y2="12" />
             <line x1="3" y1="6" x2="21" y2="6" />
             <line x1="3" y1="18" x2="21" y2="18" />
           </svg>
         </button>
-        {title && <h1 className="header__title">{title}</h1>}
+        {title && <h1 className="text-[1.125rem] font-semibold text-[#f0ebfa] whitespace-nowrap">{title}</h1>}
       </div>
 
-      <div className="header__center">
-        <div className={`header__search ${searchFocused ? 'header__search--focused' : ''}`}>
-          <svg className="header__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <div className="flex-1 flex justify-center max-w-[480px]">
+        <div className={`relative w-full max-w-[400px] ${searchFocused ? '' : ''}`}>
+          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#7a748c] pointer-events-none transition-colors duration-150 ease" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
           <input
             ref={searchRef}
             type="search"
-            className="header__search-input"
+            className="w-full h-10 pl-12 pr-12 text-sm font-sans text-[#f0ebfa] bg-[#181524] border border-[#2d2840] rounded-[10px] transition-all duration-150 ease"
             placeholder="Search documents... (⌘K)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -55,27 +54,28 @@ export function Header({ onMenuClick, title, children }) {
             onBlur={() => setSearchFocused(false)}
             aria-label="Search documents"
             autoComplete="off"
+            style={searchFocused ? { borderColor: '#c084fc', boxShadow: '0 0 0 3px rgba(192,132,252,0.12)' } : {}}
           />
           {searchQuery && (
             <button
               type="button"
-              className="header__search-clear"
+              className="absolute right-12 top-1/2 -translate-y-1/2 flex items-center justify-center w-6 h-6 border-none bg-transparent rounded-[6px] text-[#7a748c] cursor-pointer transition-all duration-150 ease"
               onClick={() => setSearchQuery('')}
               aria-label="Clear search"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4" aria-hidden="true">
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             </button>
           )}
-          <kbd className="header__search-hint">⌘K</kbd>
+          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[0.625rem] font-mono text-[#7a748c] bg-[#181524] px-1 py-0.5 rounded-[6px] pointer-events-none opacity-70"></kbd>
         </div>
       </div>
 
-      <div className="header__right">
+      <div className="flex items-center gap-3 flex-shrink-0">
         {children}
-        <div className="header__divider" aria-hidden="true" />
+        <div className="w-px h-6 bg-[#2d2840]" aria-hidden="true" />
         <IconButton
           variant="ghost"
           size="md"
@@ -87,7 +87,7 @@ export function Header({ onMenuClick, title, children }) {
             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
           </svg>
         </IconButton>
-        <div className="header__avatar" aria-label="User menu">
+        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#c084fc] to-[#a855f7] text-[#0d0b14] flex items-center justify-center text-sm font-semibold cursor-pointer transition-all duration-150 ease flex-shrink-0" aria-label="User menu">
           <span>U</span>
         </div>
       </div>
@@ -97,13 +97,13 @@ export function Header({ onMenuClick, title, children }) {
 
 export function PageHeader({ title, subtitle, action, children }) {
   return (
-    <div className="page-header">
-      <div className="page-header__content">
+    <div className="pb-6 border-b border-[#2d2840] mb-6">
+      <div className="flex items-start justify-between gap-6 flex-wrap">
         <div>
-          <h1 className="page-header__title">{title}</h1>
-          {subtitle && <p className="page-header__subtitle">{subtitle}</p>}
+          <h1 className="text-[1.5rem] font-bold text-[#f0ebfa] mb-1.5">{title}</h1>
+          {subtitle && <p className="text-sm text-[#b8b0cc]">{subtitle}</p>}
         </div>
-        <div className="page-header__actions">
+        <div className="flex items-center gap-3 flex-wrap flex-shrink-0">
           {action}
           {children}
         </div>
