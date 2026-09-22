@@ -53,6 +53,26 @@ async function request(endpoint, options = {}) {
   return handleResponse(response);
 }
 
+// The backend tracks only {doc_id, file_name, chunk_count} per document.
+// Map those onto the shape the UI expects, filling in sensible defaults for
+// fields the backend does not currently track (status, tags, timestamps, size).
+function normalizeDocument({ doc_id, file_name, chunk_count }) {
+  const title = file_name ? file_name.replace(/\.[^/.]+$/, '') : file_name;
+  return {
+    id: doc_id,
+    doc_id,
+    title: title || file_name,
+    filename: file_name,
+    file_name,
+    status: 'indexed',
+    chunk_count: chunk_count ?? 0,
+    size_bytes: 0,
+    tags: [],
+    created_at: null,
+    updated_at: null,
+  };
+}
+
 // Document API
 export const documentsApi = {
   // Upload a document
@@ -62,7 +82,7 @@ export const documentsApi = {
     if (title) formData.append('title', title);
     if (tags.length > 0) formData.append('tags', JSON.stringify(tags));
 
-    return request('/documents', {
+    return request('/documents/upload', {
       method: 'POST',
       body: formData,
     });
@@ -76,7 +96,15 @@ export const documentsApi = {
     if (params.tag) searchParams.set('tag', params.tag);
 
     const query = searchParams.toString();
-    return request(`/documents${query ? `?${query}` : ''}`);
+    const items = await request(`/documents${query ? `?${query}` : ''}`);
+
+    const normalized = Array.isArray(items) ? items.map(normalizeDocument) : [];
+    return {
+      items: normalized,
+      total: normalized.length,
+      page: params.page || 1,
+      page_size: params.page_size || normalized.length,
+    };
   },
 
   // Get a single document (if needed)
@@ -84,10 +112,13 @@ export const documentsApi = {
     return request(`/documents/${docId}`);
   },
 
-  // Update document metadata or content
+  // Update document metadata or content.
+  // NOTE: The backend's PUT /documents/{doc_id} currently accepts a file
+  // upload only, so metadata-only updates will be rejected until the backend
+  // supports them.
   update: async (docId, data) => {
     return request(`/documents/${docId}`, {
-      method: 'PATCH',
+      method: 'PUT',
       body: JSON.stringify(data),
     });
   },
@@ -102,27 +133,45 @@ export const documentsApi = {
 
 // Index API
 export const indexApi = {
-  // Trigger indexing for specific docs or all stale docs
+  // Trigger indexing for specific docs or all stale docs.
+  // NOTE: The backend currently re-indexes every file in the uploads
+  // directory and ignores the requested doc_ids.
   trigger: async (docIds = []) => {
-    return request('/index', {
+    const data = await request('/documents/reindex', {
       method: 'POST',
       body: JSON.stringify({ doc_ids: docIds }),
     });
+    return {
+      ...data,
+      docs_queued: data.documents_processed ?? 0,
+      docs_processed: data.documents_processed ?? 0,
+      chunks_created: data.chunks_reembedded ?? 0,
+      embeddings_generated: data.chunks_reembedded ?? 0,
+      embeddings_cached: data.chunks_reused ?? 0,
+      errors: [],
+    };
   },
 };
 
 // Search API
 export const searchApi = {
-  // Perform RAG search
-  query: async (query, options = {}) => {
-    return request('/search', {
+  // Perform RAG search.
+  // NOTE: The backend's /search/ask accepts { question } only (it rejects
+  // unknown fields), so top_k / tag filtering are dropped until supported.
+  query: async (query, _options = {}) => {
+    const data = await request('/search/ask', {
       method: 'POST',
-      body: JSON.stringify({
-        query,
-        top_k: options.topK || 5,
-        tags: options.tags || [],
-      }),
+      body: JSON.stringify({ question: query }),
     });
+    return {
+      ...data,
+      sources: (data.sources || []).map((source) => ({
+        ...source,
+        title: source.file_name || 'Document',
+        doc_id: source.file_name || source.section || '',
+        chunk_id: source.section || '',
+      })),
+    };
   },
 };
 
@@ -130,7 +179,11 @@ export const searchApi = {
 export const healthApi = {
   // Check system health
   check: async () => {
-    return request('/health');
+    const data = await request('/health');
+    return {
+      ...data,
+      status: data.status === 'healthy' ? 'ok' : data.status,
+    };
   },
 };
 
@@ -138,7 +191,19 @@ export const healthApi = {
 export const metricsApi = {
   // Get system metrics
   get: async () => {
-    return request('/metrics');
+    const data = await request('/metrics');
+    return {
+      ...data,
+      docs_total: data.total_documents ?? data.documents ?? 0,
+      chunks_total: data.active_chunks ?? data.chunks ?? 0,
+      queries_served: data.queries_served ?? data.total_queries ?? 0,
+      queries_last_24h: data.queries_served ?? data.total_queries ?? 0,
+      latency_ms: {
+        p50: data.latency_ms_median ?? 0,
+        p95: data.latency_ms_p95 ?? 0,
+      },
+      cache_hit_rate: 0,
+    };
   },
 };
 
