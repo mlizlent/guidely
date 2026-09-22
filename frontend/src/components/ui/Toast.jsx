@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import './Toast.css';
 
 const TOAST_LIMIT = 5;
 const TOAST_REMOVE_DELAY = 3000;
