@@ -1,0 +1,35 @@
+# Guidely — Employee Onboarding Guide
+
+Welcome to Guidely! This guide walks new hires through their first week.
+
+## Day 1: Setup
+- Pick up your laptop from IT.
+- Complete the HR paperwork in the onboarding portal.
+- Join the company Slack workspace and the #new-hires channel.
+- Set up your email, calendar, and the internal VPN client.
+
+## Day 2: Access
+- Request access to the code repository and CI/CD dashboard.
+- Read the engineering handbook in the internal wiki.
+- Schedule a one-on-one with your manager for goals and expectations.
+
+## Day 3: Environment
+- Install the local development stack using the setup script in the
+  engineering handbook.
+- Run the smoke tests to confirm your environment is healthy.
+- Join the daily standup and introduce yourself to the team.
+
+## Day 4: First Task
+- Pick a beginner issue from the project board labeled "good first issue".
+- Open a pull request following the pull request template.
+- Request a review from a team member and address feedback.
+
+## Day 5: Review
+- Attend the team retrospective and share your first-week experience.
+- Confirm any remaining access requests are complete.
+- Set up your time-off balance and benefits elections.
+
+## Useful links
+- HR portal: https://hr.guidely.com
+- Engineering handbook: https://wiki.guidely.com/engineering
+- IT helpdesk: it-support@guidely.com
