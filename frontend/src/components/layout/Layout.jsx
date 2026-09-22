@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import './Layout.css';
 
 export function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -39,18 +38,25 @@ export function Layout() {
   }, []);
 
   return (
-    <div className="layout">
+    <div className="flex min-h-screen bg-[#0d0b14]">
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
-      <div className={`sidebar-overlay ${sidebarOpen ? 'sidebar-overlay--visible' : ''}`} onClick={() => setSidebarOpen(false)} aria-hidden="true" />
-      <div className="layout__main" style={{ marginLeft: sidebarCollapsed ? '72px' : 'var(--sidebar-width)' }}>
+      <div
+        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-[99] ${sidebarOpen ? 'block' : 'hidden'} lg:hidden`}
+        onClick={() => setSidebarOpen(false)}
+        aria-hidden="true"
+      />
+      <div
+        className="flex-1 flex flex-col min-w-0 transition-[margin-left] duration-250 ease"
+        style={{ marginLeft: sidebarCollapsed ? '72px' : '260px' }}
+      >
         <Header
           onMenuClick={() => setSidebarOpen(true)}
           title={!sidebarCollapsed ? 'Guidely' : null}
         />
-        <main className="layout__content" role="main">
+        <main className="flex-1 p-6 max-w-[1200px] w-full mx-auto" role="main">
           <Outlet />
         </main>
       </div>
