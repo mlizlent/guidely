@@ -1,4 +1,3 @@
-import './Table.css';
 
 export function Table({
   columns = [],
@@ -27,7 +26,13 @@ export function Table({
                     type="checkbox"
                     className="table__select-all"
                     checked={data.length > 0 && data.every((row) => selectedRows.includes(row[keyField]))}
-                    indeterminate={data.length > 0 && data.some((row) => selectedRows.includes(row[keyField])) && !data.every((row) => selectedRows.includes(row[keyField]))}
+                    indeterminate={
+                      data.length > 0 &&
+                      data.some((row) => selectedRows.includes(row[keyField])) &&
+                      !data.every((row) => selectedRows.includes(row[keyField]))
+                        ? true
+                        : undefined
+                    }
                     onChange={(e) => {
                       if (e.target.checked) {
                         onSelectionChange?.(data.map((row) => row[keyField]));
