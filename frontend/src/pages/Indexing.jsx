@@ -7,7 +7,6 @@ import { Table, Pagination } from '../components/ui/Table';
 import { Spinner, PageLoader } from '../components/ui/Spinner';
 import { PageHeader } from '../components/layout/Header';
 import { useToastHelpers } from '../components/ui/Toast';
-import './Indexing.css';
 
 export function Indexing() {
   const { success, error, warning, info } = useToastHelpers();
