@@ -34,7 +34,7 @@ export function Header({ title, children }) {
             ref={searchRef}
             type="search"
             className="w-full h-10 pl-12 pr-12 text-sm font-sans text-[#f0ebfa] bg-[#181524] border border-[#2d2840] rounded-[10px] transition-all duration-150 ease"
-            placeholder="Search documents... (⌘K)"
+            placeholder="Search document"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setSearchFocused(true)}
