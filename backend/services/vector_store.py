@@ -180,16 +180,21 @@ def index_document(
             if str(record["chunk_id"]) not in reused_old_ids
         ]
 
-        # Embed and validate all new vectors before mutating the catalog.
-        matrix: np.ndarray | None = None
-        if new_chunks:
-            vectors = embedder.embed_texts([item["text"] for item in new_chunks])
-            matrix = _normalize_vectors(vectors)
-            _ensure_index_locked(int(matrix.shape[1]))
-
         protected_ids = set(_metadata) - set(stale_ids)
         for item in new_chunks:
             item["chunk_id"] = _unique_chunk_id(str(item["chunk_id"]), protected_ids)
+
+    # Embed new vectors outside the lock to avoid blocking other
+    # operations during model inference.
+    matrix: np.ndarray | None = None
+    if new_chunks:
+        vectors = embedder.embed_texts([item["text"] for item in new_chunks])
+        matrix = _normalize_vectors(vectors)
+
+    with _lock:
+        # Ensure index exists with correct dimension (fast, no model I/O).
+        if matrix is not None:
+            _ensure_index_locked(int(matrix.shape[1]))
 
         # Remove stale rows only after embedding and dimension checks succeed.
         _remove_ids_locked(stale_ids)

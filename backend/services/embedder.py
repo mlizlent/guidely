@@ -96,7 +96,7 @@ def embed_texts_with_cache_status(
                 try:
                     encoded = model.encode(
                         missing_texts,
-                        batch_size=32,
+                        batch_size=64,
                         convert_to_numpy=True,
                         normalize_embeddings=True,
                         show_progress_bar=False,
