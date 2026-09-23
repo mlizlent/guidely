@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button, IconButton } from '../ui/Button';
 import { Input } from '../ui/Input';
 
-export function Header({ onMenuClick, title, children }) {
+export function Header({ title, children }) {
   const [searchQuery, setSearchQuery] = useState('');
   const searchRef = useRef(null);
   const [searchFocused, setSearchFocused] = useState(false);
@@ -21,19 +21,6 @@ export function Header({ onMenuClick, title, children }) {
   return (
     <header className="sticky top-0 z-50 h-16 bg-[rgba(13,11,20,0.8)] backdrop-blur-md border-b border-[#2d2840] flex items-center justify-between px-6 gap-6" role="banner">
       <div className="flex items-center gap-4 flex-shrink-0">
-        <button
-          type="button"
-          className="lg:hidden flex items-center justify-center w-10 h-10 border-none bg-[#1e1b2e] rounded-[10px] text-[#b8b0cc] cursor-pointer transition-all duration-150 ease"
-          onClick={onMenuClick}
-          aria-label="Toggle menu"
-          aria-expanded="false"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5" aria-hidden="true">
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-        </button>
         {title && <h1 className="text-[1.125rem] font-semibold text-[#f0ebfa] whitespace-nowrap">{title}</h1>}
       </div>
 
@@ -78,18 +65,15 @@ export function Header({ onMenuClick, title, children }) {
         <div className="w-px h-6 bg-[#2d2840]" aria-hidden="true" />
         <IconButton
           variant="ghost"
-          size="md"
+          size="sm"
           aria-label="Notifications"
           onClick={() => {}}
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
           </svg>
         </IconButton>
-        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#c084fc] to-[#a855f7] text-[#0d0b14] flex items-center justify-center text-sm font-semibold cursor-pointer transition-all duration-150 ease flex-shrink-0" aria-label="User menu">
-          <span>U</span>
-        </div>
       </div>
     </header>
   );
