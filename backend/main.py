@@ -46,7 +46,11 @@ app.include_router(search.router)
 
 @app.get("/health", tags=["system"])
 async def health() -> dict[str, str]:
-    return {"status": "healthy"}
+    return {
+        "status": "healthy",
+        "vector_store": "FAISS (in-memory)",
+        "db": "None (in-memory only)",
+    }
 
 
 @app.get("/metrics", tags=["system"])
