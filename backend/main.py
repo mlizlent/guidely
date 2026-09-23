@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import AsyncIterator
 
 from fastapi import FastAPI, Request
@@ -9,7 +10,38 @@ from core.config import settings
 from core.errors import GuidelyError, guidely_error_handler, unhandled_error_handler
 from core.logging import get_metrics_snapshot
 from routes import documents, search
-from services import vector_store
+from services import embedder, vector_store
+
+
+_SAMPLE_DOCS_DIR = Path(__file__).parent / "data" / "sample-docs"
+
+
+def _warmup_model() -> None:
+    """Load the embedding model into memory before serving requests."""
+    try:
+        embedder.embed_texts(["warmup"])
+    except Exception:
+        pass
+
+
+def _preindex_sample_docs() -> None:
+    """Index sample documents at startup so the cache is warm."""
+    if not _SAMPLE_DOCS_DIR.exists():
+        return
+    from services.parser import parse_file
+    from services.chunker import chunk_document
+
+    for path in sorted(_SAMPLE_DOCS_DIR.iterdir()):
+        if not path.is_file():
+            continue
+        try:
+            import hashlib
+            doc_id = hashlib.sha256(path.name.encode()).hexdigest()[:12]
+            text = parse_file(path)
+            chunks = chunk_document(text, doc_id)
+            vector_store.index_document(doc_id, path.name, chunks)
+        except Exception:
+            continue
 
 
 @asynccontextmanager
@@ -19,6 +51,8 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     settings.data_dir.mkdir(parents=True, exist_ok=True)
     (settings.data_dir / "uploads").mkdir(parents=True, exist_ok=True)
     (settings.data_dir / "index").mkdir(parents=True, exist_ok=True)
+    _warmup_model()
+    _preindex_sample_docs()
     yield
 
 
