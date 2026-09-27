@@ -1,4 +1,7 @@
-const API_BASE = '/api';
+// API base URL. In dev, Vite proxies /api to the backend. In production the
+// frontend and backend are separate services, so the base is injected at
+// build time via VITE_API_BASE.
+const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
 class ApiError extends Error {
   constructor(message, status, code, details) {
