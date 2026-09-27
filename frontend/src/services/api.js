@@ -53,10 +53,10 @@ async function request(endpoint, options = {}) {
   return handleResponse(response);
 }
 
-// The backend tracks only {doc_id, file_name, chunk_count} per document.
-// Map those onto the shape the UI expects, filling in sensible defaults for
-// fields the backend does not currently track (status, tags, timestamps, size).
-function normalizeDocument({ doc_id, file_name, chunk_count }) {
+// The backend tracks {doc_id, file_name, chunk_count, status, error, system}
+// per document. Map those onto the shape the UI expects, filling in sensible
+// defaults for fields the backend does not track (tags, timestamps, size).
+function normalizeDocument({ doc_id, file_name, chunk_count, status, error, system }) {
   const title = file_name ? file_name.replace(/\.[^/.]+$/, '') : file_name;
   return {
     id: doc_id,
@@ -64,12 +64,14 @@ function normalizeDocument({ doc_id, file_name, chunk_count }) {
     title: title || file_name,
     filename: file_name,
     file_name,
-    status: 'indexed',
+    status: status || 'uploaded',
     chunk_count: chunk_count ?? 0,
     size_bytes: 0,
     tags: [],
     created_at: null,
     updated_at: null,
+    error: error || null,
+    system: !!system,
   };
 }
 
@@ -110,6 +112,11 @@ export const documentsApi = {
   // Get a single document (if needed)
   get: async (docId) => {
     return request(`/documents/${docId}`);
+  },
+
+  // Get indexing status for a single document (async indexing flow)
+  status: async (docId) => {
+    return request(`/documents/${docId}/status`);
   },
 
   // Update document metadata or content.
