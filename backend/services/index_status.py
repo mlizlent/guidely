@@ -17,6 +17,7 @@ _lock = RLock()
 _statuses: dict[str, str] = {}
 _errors: dict[str, str] = {}
 _paths: dict[str, Path] = {}
+_sizes: dict[str, int] = {}
 _generations: dict[str, int] = {}
 _system: set[str] = set()
 
@@ -44,6 +45,22 @@ def register(doc_id: str, file_name: str, path: Path, *, system: bool = False) -
         else:
             _system.discard(doc_id)
         return generation
+
+
+def set_path(doc_id: str, path: Path) -> None:
+    """Record the on-disk path of a document after it has been written."""
+
+    with _lock:
+        _paths[doc_id] = Path(path)
+        try:
+            _sizes[doc_id] = int(path.stat().st_size)
+        except OSError:
+            _sizes[doc_id] = 0
+
+
+def get_size(doc_id: str) -> int:
+    with _lock:
+        return int(_sizes.get(doc_id, 0))
 
 
 def set_status(doc_id: str, status: str, error: str | None = None, generation: int | None = None) -> bool:
@@ -87,6 +104,11 @@ def all_statuses() -> dict[str, str]:
         return dict(_statuses)
 
 
+def all_sizes() -> dict[str, int]:
+    with _lock:
+        return dict(_sizes)
+
+
 def is_system(doc_id: str) -> bool:
     with _lock:
         return doc_id in _system
@@ -97,6 +119,7 @@ def remove(doc_id: str) -> None:
         _statuses.pop(doc_id, None)
         _errors.pop(doc_id, None)
         _paths.pop(doc_id, None)
+        _sizes.pop(doc_id, None)
         _generations.pop(doc_id, None)
         _system.discard(doc_id)
 
@@ -106,5 +129,6 @@ def reset() -> None:
         _statuses.clear()
         _errors.clear()
         _paths.clear()
+        _sizes.clear()
         _generations.clear()
         _system.clear()
