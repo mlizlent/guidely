@@ -14,6 +14,7 @@ class DocumentMeta(RecordModel):
     status: str = "uploaded"
     error: str | None = None
     system: bool = False
+    size_bytes: int = Field(default=0, ge=0)
 
 
 class UploadResponse(RecordModel):
