@@ -20,10 +20,10 @@ def _get_client() -> OpenAI:
 
 
 _SYSTEM_PROMPT = """You are Guidely, an internal knowledge assistant.
-Answer the user's question using ONLY the numbered source chunks provided.
-If the chunks don't contain enough information, say so plainly instead of guessing.
+Answer the user's question using ONLY the numbered source documents provided.
+If the documents don't contain enough information, say so plainly instead of guessing.
 Keep the answer concise (2-5 sentences). After the answer, on a new line, list the
-chunk numbers you actually relied on, formatted exactly as: SOURCES: [1, 3]"""
+document numbers you actually relied on, formatted exactly as: SOURCES: [1, 3]"""
 
 
 def _build_user_message(question: str, chunks: list[dict]) -> str:
