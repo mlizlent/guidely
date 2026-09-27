@@ -1,9 +1,18 @@
 import re
+import logging
 
 from openai import OpenAI
 
 from core.config import settings
 from core.errors import MissingModelKeyError, ModelTimeoutError
+
+logger = logging.getLogger("guidely.answerer")
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
+    logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+logger.propagate = False
 
 _client: OpenAI | None = None
 
@@ -51,6 +60,7 @@ def generate_answer(question: str, retrieved: list[tuple[dict, float]]) -> tuple
             temperature=0.2,
         )
     except Exception as exc:
+        logger.error("model request failed: %s: %s", type(exc).__name__, exc)
         raise ModelTimeoutError() from exc
 
     raw = response.choices[0].message.content or ""
