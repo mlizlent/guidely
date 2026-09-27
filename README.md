@@ -93,14 +93,12 @@ All settings live in `backend/.env` (see `backend/.env.example`):
 ## Deployment
 
 The project is configured for [Render](https://render.com) via `render.yaml`.
-Both services share a persistent disk so uploaded documents survive
-restarts:
+A single Python service serves both the API and the built SPA from the same
+origin, with a persistent disk so uploaded documents survive restarts:
 
-- **`guidely-backend`** (Python) — runs `uvicorn main:app` on `$PORT`. Installs
-  `requirements.txt`, loads env vars from the Render dashboard.
-- **`guidely-frontend`** (Node) — builds the Vite app and serves it with
-  `vite preview`. `VITE_API_BASE` is injected at build time so the SPA calls
-  the deployed backend.
+- **`guidely`** (Python) — installs `requirements.txt`, builds the Vite app,
+  and runs `uvicorn main:app --host 0.0.0.0 --port $PORT`. The FastAPI app
+  mounts `frontend/dist/` as static files, so the SPA and API share a domain.
 
 ### Deploy
 
@@ -113,26 +111,24 @@ Or import the repo into the Render dashboard and let it auto-detect
 
 ### Required env vars
 
-Set these on the **`guidely-backend`** service (Render dashboard → Environment):
+Set these in the Render dashboard → Environment:
 
 | Variable             | Value (example)                                    |
 | -------------------- | -------------------------------------------------- |
 | `GROQ_API_KEY`       | Your Groq key (required for `/search/ask`)         |
 | `GROQ_BASE_URL`      | `https://api.groq.com/openai/v1`                   |
 | `CHAT_MODEL`         | `qwen/qwen3.8-27b`                                 |
-| `CORS_ORIGINS`       | `["https://guidely-frontend.onrender.com"]`        |
-
-Set `VITE_API_BASE=https://guidely-backend.onrender.com` on the **`guidely-frontend`**
-service before building.
+| `CORS_ORIGINS`       | `["*"]` (same-origin, so any value works)           |
 
 ### Notes for Render
 
-- The backend's startup (`lifespan`) runs a model warmup and pre-indexes the
-  sample docs, so the first request after a deploy takes a few seconds.
+- The backend's startup (`lifespan`) runs a model warmup, pre-indexes the
+  sample docs, and re-indexes uploads, so the first request after a deploy
+  takes a few seconds.
 - The vector store is **in-memory**; a cold start rebuilds it from
-  `data/sample-docs/`. Uploaded documents live on the attached disk
-  (`backend/data/uploads/`) and are re-indexed on startup, so they survive
-  deploys.
+  `data/sample-docs/` and `data/uploads/`. Uploaded documents live on the
+  attached disk (`backend/data/uploads/`) and are re-indexed on startup, so
+  they survive deploys.
 - Set a non-zero `disk` size in `render.yaml` if you upload large documents.
 
 ## Sample data
