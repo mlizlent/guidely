@@ -3,8 +3,8 @@ services:
     name: guidely
     plan: starter
     runtime: docker
-    dockerfile: Dockerfile
-    root: .
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     envVars:
       - key: GROQ_API_KEY
         sync: false
