@@ -5,6 +5,7 @@ from typing import AsyncIterator
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from core.config import settings
 from core.errors import GuidelyError, guidely_error_handler, unhandled_error_handler
@@ -13,7 +14,12 @@ from routes import documents, search
 from services import embedder, index_status, vector_store
 
 
-_SAMPLE_DOCS_DIR = Path(__file__).parent / "data" / "sample-docs"
+_BACKEND_DIR = Path(__file__).resolve().parent
+_SAMPLE_DOCS_DIR = _BACKEND_DIR / "data" / "sample-docs"
+# The frontend build output. In dev this directory does not exist; the Vite
+# dev server serves the SPA itself. In production (Render) it is built by the
+# build step and served here alongside the API.
+_FRONTEND_DIR = _BACKEND_DIR.parent / "frontend" / "dist"
 
 
 def _warmup_model() -> None:
@@ -146,3 +152,9 @@ async def metrics() -> dict[str, int | float | dict[str, int]]:
         "total_errors": query_stats["total_errors"],
         "errors": query_stats["errors"],
     }
+
+
+# Serve the built SPA (frontend/dist) for any route not handled by the API
+# above. This must come last so API routes take precedence.
+if _FRONTEND_DIR.is_dir():
+    app.mount("/", StaticFiles(directory=str(_FRONTEND_DIR), html=True), name="frontend")
