@@ -11,6 +11,9 @@ class DocumentMeta(RecordModel):
     doc_id: str
     file_name: str
     chunk_count: int = Field(ge=0)
+    status: str = "uploaded"
+    error: str | None = None
+    system: bool = False
 
 
 class UploadResponse(RecordModel):
