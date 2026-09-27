@@ -10,7 +10,7 @@ from core.config import settings
 from core.errors import GuidelyError, guidely_error_handler, unhandled_error_handler
 from core.logging import get_metrics_snapshot
 from routes import documents, search
-from services import embedder, vector_store
+from services import embedder, index_status, vector_store
 
 
 _SAMPLE_DOCS_DIR = Path(__file__).parent / "data" / "sample-docs"
@@ -25,21 +25,28 @@ def _warmup_model() -> None:
 
 
 def _preindex_sample_docs() -> None:
-    """Index sample documents at startup so the cache is warm."""
+    """Index sample documents at startup so the cache is warm.
+
+    Sample documents are marked as system documents: they stay indexed and
+    searchable but are hidden from the document management UI.
+    """
+
     if not _SAMPLE_DOCS_DIR.exists():
         return
     from services.parser import parse_file
     from services.chunker import chunk_document
+    from routes.documents import _doc_id_for
 
     for path in sorted(_SAMPLE_DOCS_DIR.iterdir()):
         if not path.is_file():
             continue
         try:
-            import hashlib
-            doc_id = hashlib.sha256(path.name.encode()).hexdigest()[:12]
+            doc_id = _doc_id_for(path.name)
             text = parse_file(path)
             chunks = chunk_document(text, doc_id)
             vector_store.index_document(doc_id, path.name, chunks)
+            index_status.register(doc_id, path.name, path, system=True)
+            index_status.set_status(doc_id, "indexed")
         except Exception:
             continue
 
