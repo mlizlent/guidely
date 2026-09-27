@@ -46,6 +46,7 @@ def _preindex_sample_docs() -> None:
             chunks = chunk_document(text, doc_id)
             vector_store.index_document(doc_id, path.name, chunks)
             index_status.register(doc_id, path.name, path, system=True)
+            index_status.set_path(doc_id, path)
             index_status.set_status(doc_id, "indexed")
         except Exception:
             continue
