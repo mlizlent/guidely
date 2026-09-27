@@ -23,7 +23,7 @@ async def ask(request: QueryRequest) -> AnswerResponse:
     used_indices = set()
 
     try:
-        retrieved = retrieve(question)
+        retrieved = retrieve(question, top_k=request.top_k)
         answer_text, used_indices = generate_answer(question, retrieved)
     except GuidelyError as exc:
         error_type = exc.code

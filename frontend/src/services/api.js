@@ -166,12 +166,16 @@ export const indexApi = {
 // Search API
 export const searchApi = {
   // Perform RAG search.
-  // NOTE: The backend's /search/ask accepts { question } only (it rejects
-  // unknown fields), so top_k / tag filtering are dropped until supported.
-  query: async (query, _options = {}) => {
+  // The backend accepts { question, top_k? }; top_k overrides the server's
+  // configured default for that request only.
+  query: async (query, options = {}) => {
+    const body = { question: query };
+    if (options.topK != null) {
+      body.top_k = Number(options.topK);
+    }
     const data = await request('/search/ask', {
       method: 'POST',
-      body: JSON.stringify({ question: query }),
+      body: JSON.stringify(body),
     });
     return {
       ...data,

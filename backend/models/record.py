@@ -32,6 +32,7 @@ class ReindexResponse(RecordModel):
 
 class QueryRequest(RecordModel):
     question: str
+    top_k: int | None = Field(default=None, ge=1, le=50)
 
 
 class SourceSnippet(RecordModel):
