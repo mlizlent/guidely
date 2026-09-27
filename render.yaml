@@ -1,7 +1,7 @@
 services:
   - type: web
     name: guidely-docker
-    plan: starter
+    plan: standard
     runtime: docker
     dockerfilePath: ./Dockerfile
     dockerContext: .
