@@ -18,21 +18,7 @@ export function Sidebar({ collapsed = false, onToggle }) {
     >
       <div className="flex items-center justify-between h-[64px] px-4 border-b border-[#2d2840] flex-shrink-0">
         {!collapsed && (
-          <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-8 h-8 flex-shrink-0 rounded-[10px] shadow-sm" aria-hidden="true">
-              <svg viewBox="0 0 32 32" fill="none" className="w-full h-full" aria-hidden="true">
-                <rect width="32" height="32" rx="8" fill="url(#grad)" />
-                <path d="M10 16l4 4 8-8" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                <defs>
-                  <linearGradient id="grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#c084fc" />
-                    <stop offset="100%" stopColor="#a855f7" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-            <span className="text-[1.125rem] font-bold text-[#f0ebfa] whitespace-nowrap overflow-hidden text-ellipsis">Guidely</span>
-          </div>
+          <span className="text-[1.125rem] font-bold text-[#f0ebfa] whitespace-nowrap overflow-hidden text-ellipsis">Guidely</span>
         )}
         <button
           type="button"
