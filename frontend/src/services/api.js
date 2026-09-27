@@ -53,10 +53,10 @@ async function request(endpoint, options = {}) {
   return handleResponse(response);
 }
 
-// The backend tracks {doc_id, file_name, chunk_count, status, error, system}
-// per document. Map those onto the shape the UI expects, filling in sensible
-// defaults for fields the backend does not track (tags, timestamps, size).
-function normalizeDocument({ doc_id, file_name, chunk_count, status, error, system }) {
+// The backend tracks {doc_id, file_name, chunk_count, status, error, system,
+// size_bytes} per document. Map those onto the shape the UI expects, filling
+// in sensible defaults for fields the backend does not track (tags, timestamps).
+function normalizeDocument({ doc_id, file_name, chunk_count, status, error, system, size_bytes }) {
   const title = file_name ? file_name.replace(/\.[^/.]+$/, '') : file_name;
   return {
     id: doc_id,
@@ -66,7 +66,7 @@ function normalizeDocument({ doc_id, file_name, chunk_count, status, error, syst
     file_name,
     status: status || 'uploaded',
     chunk_count: chunk_count ?? 0,
-    size_bytes: 0,
+    size_bytes: size_bytes ?? 0,
     tags: [],
     created_at: null,
     updated_at: null,
