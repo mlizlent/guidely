@@ -1,6 +1,6 @@
-// API base URL. In dev, Vite proxies /api to the backend. In production the
-// frontend and backend are separate services, so the base is injected at
-// build time via VITE_API_BASE.
+// API base URL. In production the SPA and API are served from the same
+// origin, so relative /api paths work directly. In dev, Vite proxies /api
+// to the backend; VITE_API_BASE is only needed if they are separate.
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
 class ApiError extends Error {
