@@ -54,14 +54,46 @@ def _preindex_sample_docs() -> None:
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    """Create runtime directories before the first request is accepted."""
+    """Create runtime directories, warm up the model, and rebuild the index.
+
+    Uploaded documents in ``data/uploads/`` are re-indexed at startup so they
+    survive a cold start (e.g. a Render deploy). Sample documents are indexed
+    and marked as system so they stay hidden from the manage UI.
+    """
 
     settings.data_dir.mkdir(parents=True, exist_ok=True)
     (settings.data_dir / "uploads").mkdir(parents=True, exist_ok=True)
     (settings.data_dir / "index").mkdir(parents=True, exist_ok=True)
     _warmup_model()
     _preindex_sample_docs()
+    _reindex_uploads()
     yield
+
+
+def _reindex_uploads() -> None:
+    """Re-parse and embed every file in the uploads directory on startup.
+
+    The vector store's hash-based cache skips unchanged chunks, so this is
+    cheap for documents that were already indexed in a previous session.
+    """
+
+    from services.parser import parse_file
+    from services.chunker import chunk_document
+    from routes.documents import _doc_id_for, _UPLOAD_DIR
+
+    for path in sorted(_UPLOAD_DIR.glob("*")):
+        if not path.is_file():
+            continue
+        try:
+            doc_id = _doc_id_for(path.name)
+            text = parse_file(path)
+            chunks = chunk_document(text, doc_id)
+            vector_store.index_document(doc_id, path.name, chunks)
+            index_status.register(doc_id, path.name, path)
+            index_status.set_path(doc_id, path)
+            index_status.set_status(doc_id, "indexed")
+        except Exception:
+            continue
 
 
 app = FastAPI(
