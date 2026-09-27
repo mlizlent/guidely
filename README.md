@@ -90,11 +90,56 @@ All settings live in `backend/.env` (see `backend/.env.example`):
 | `CHUNK_OVERLAP_CHARS` | `100`                          | Overlap between chunks           |
 | `CORS_ORIGINS`        | `localhost:5173,127.0.0.1:5173` | Comma-separated allow-list      |
 
+## Deployment
+
+The project is configured for [Render](https://render.com) via `render.yaml`.
+Both services share a persistent disk so uploaded documents survive
+restarts:
+
+- **`guidely-backend`** (Python) — runs `uvicorn main:app` on `$PORT`. Installs
+  `requirements.txt`, loads env vars from the Render dashboard.
+- **`guidely-frontend`** (Node) — builds the Vite app and serves it with
+  `vite preview`. `VITE_API_BASE` is injected at build time so the SPA calls
+  the deployed backend.
+
+### Deploy
+
+```bash
+render deploy --yaml render.yaml --non-interactive
+```
+
+Or import the repo into the Render dashboard and let it auto-detect
+`render.yaml`.
+
+### Required env vars
+
+Set these on the **`guidely-backend`** service (Render dashboard → Environment):
+
+| Variable             | Value (example)                                    |
+| -------------------- | -------------------------------------------------- |
+| `GROQ_API_KEY`       | Your Groq key (required for `/search/ask`)         |
+| `GROQ_BASE_URL`      | `https://api.groq.com/openai/v1`                   |
+| `CHAT_MODEL`         | `qwen/qwen3.8-27b`                                 |
+| `CORS_ORIGINS`       | `["https://guidely-frontend.onrender.com"]`        |
+
+Set `VITE_API_BASE=https://guidely-backend.onrender.com` on the **`guidely-frontend`**
+service before building.
+
+### Notes for Render
+
+- The backend's startup (`lifespan`) runs a model warmup and pre-indexes the
+  sample docs, so the first request after a deploy takes a few seconds.
+- The vector store is **in-memory**; a cold start rebuilds it from
+  `data/sample-docs/`. Uploaded documents live on the attached disk
+  (`backend/data/uploads/`) and are re-indexed on startup, so they survive
+  deploys.
+- Set a non-zero `disk` size in `render.yaml` if you upload large documents.
+
 ## Sample data
 
 `backend/data/sample-docs/` ships with three documents (`faq.txt`, `guide.txt`,
-`policy.txt`). Copy them into `backend/data/uploads/` (or upload them through
-the UI) and run `POST /documents/reindex` to make them searchable.
+`policy.txt`). They are pre-indexed at startup and hidden from the document
+management UI, but searchable via `/search/ask`.
 
 ## Notes
 
