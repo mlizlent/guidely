@@ -1,7 +1,7 @@
-import re
 import logging
+import re
 
-from openai import OpenAI
+from openai import APIStatusError, APITimeoutError, AuthenticationError, OpenAI, RateLimitError
 
 from core.config import settings
 from core.errors import MissingModelKeyError, ModelTimeoutError
@@ -40,7 +40,7 @@ def _build_user_message(question: str, chunks: list[dict]) -> str:
         f"[{i + 1}] ({c['file_name']}" + (f" — {c['section']}" if c.get("section") else "") + f")\n{c['text']}"
         for i, c in enumerate(chunks)
     )
-    return f"Question: {question}\n\nSource chunks:\n{numbered}"
+    return f"Question: {question}\n\nSource documents:\n{numbered}"
 
 
 def generate_answer(question: str, retrieved: list[tuple[dict, float]]) -> tuple[str, list[int]]:
@@ -59,6 +59,18 @@ def generate_answer(question: str, retrieved: list[tuple[dict, float]]) -> tuple
             ],
             temperature=0.2,
         )
+    except APITimeoutError as exc:
+        logger.error("model request timed out: %s", exc)
+        raise ModelTimeoutError() from exc
+    except AuthenticationError as exc:
+        logger.error("model authentication failed: %s", exc)
+        raise ModelTimeoutError() from exc
+    except RateLimitError as exc:
+        logger.error("model rate limit exceeded: %s", exc)
+        raise ModelTimeoutError() from exc
+    except APIStatusError as exc:
+        logger.error("model request failed with status %s: %s", exc.status_code, exc)
+        raise ModelTimeoutError() from exc
     except Exception as exc:
         logger.error("model request failed: %s: %s", type(exc).__name__, exc)
         raise ModelTimeoutError() from exc
