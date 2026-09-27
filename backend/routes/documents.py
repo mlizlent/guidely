@@ -55,6 +55,7 @@ async def upload_document(file: UploadFile = File(...)) -> UploadResponse:
 
     with dest.open("wb") as out:
         shutil.copyfileobj(file.file, out)
+    index_status.set_path(doc_id, dest)
 
     thread = threading.Thread(
         target=_index_one,
@@ -79,6 +80,7 @@ async def edit_document(doc_id: str, file: UploadFile = File(...)) -> UploadResp
 
     with dest.open("wb") as out:
         shutil.copyfileobj(file.file, out)
+    index_status.set_path(doc_id, dest)
 
     thread = threading.Thread(
         target=_index_one,
@@ -162,6 +164,7 @@ async def list_documents() -> list[DocumentMeta]:
 
     docs = vector_store.list_documents()
     statuses = index_status.all_statuses()
+    sizes = index_status.all_sizes()
     return [
         DocumentMeta(
             doc_id=d["doc_id"],
@@ -170,6 +173,7 @@ async def list_documents() -> list[DocumentMeta]:
             status=statuses.get(d["doc_id"], "uploaded"),
             error=index_status.get_error(d["doc_id"]),
             system=index_status.is_system(d["doc_id"]),
+            size_bytes=sizes.get(d["doc_id"], 0),
         )
         for d in docs.values()
         if not index_status.is_system(d["doc_id"])
