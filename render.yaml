@@ -1,15 +1,10 @@
 services:
   - type: web
     name: guidely
-    env: python
     plan: starter
-    buildCommand: |
-      cd backend
-      pip install -r requirements.txt
-      cd ../frontend
-      npm install
-      npm run build
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    runtime: docker
+    dockerfile: Dockerfile
+    root: .
     envVars:
       - key: GROQ_API_KEY
         sync: false
@@ -29,8 +24,7 @@ services:
         value: "100"
       - key: CORS_ORIGINS
         value: '["*"]'
-    root: backend
     disk:
       name: data
-      mountPath: /opt/render/project/src/backend/data
+      mountPath: /app/backend/data
       sizeGB: 1
