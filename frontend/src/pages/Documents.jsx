@@ -98,16 +98,42 @@ export function Documents() {
     setUploadLoading(true);
     try {
       const tags = uploadTags.split(',').map(t => t.trim()).filter(Boolean);
-      await documentsApi.upload(uploadFile, uploadTitle || uploadFile.name, tags);
-      success('Document uploaded', `${uploadFile.name} has been uploaded`);
+      const result = await documentsApi.upload(uploadFile, uploadTitle || uploadFile.name, tags);
+      success('Document uploaded', `${uploadFile.name} is being indexed in the background`);
       setUploadOpen(false);
       resetUploadForm();
       fetchDocuments();
+      if (result?.doc_id) {
+        _pollIndexStatus(result.doc_id, 5000);
+      }
     } catch (err) {
       error('Upload failed', err.message);
     } finally {
       setUploadLoading(false);
     }
+  };
+
+  // Poll a document's indexing status until it leaves the "indexing" state.
+  const _pollIndexStatus = (docId, intervalMs = 4000, maxAttempts = 30) => {
+    let attempts = 0;
+    const interval = setInterval(async () => {
+      attempts += 1;
+      try {
+        const status = await documentsApi.status(docId);
+        if (status.status !== 'indexing' && status.status !== 'uploaded') {
+          clearInterval(interval);
+          fetchDocuments();
+          return;
+        }
+        if (attempts >= maxAttempts) {
+          clearInterval(interval);
+          fetchDocuments();
+        }
+      } catch {
+        clearInterval(interval);
+      }
+    }, intervalMs);
+    return interval;
   };
 
   const resetUploadForm = () => {
