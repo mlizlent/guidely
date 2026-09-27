@@ -14,6 +14,9 @@ export default defineConfig({
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
+        // RAG answers can take several seconds on first model warmup, so the
+        // default 5s proxy timeout is far too short.
+        timeout: 120000,
       },
     },
   },
