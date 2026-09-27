@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     )
 
     groq_api_key: str = ""
-    groq_base_url: str = "https://groq.com"
+    groq_base_url: str = "https://api.groq.com/openai/v1"
     chat_model: str = "llama3-8b-8192"
     embedding_model: str = "all-MiniLM-L6-v2"
     data_dir: Path = Path("./data")
