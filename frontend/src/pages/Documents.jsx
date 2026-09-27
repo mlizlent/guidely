@@ -237,7 +237,6 @@ export function Documents() {
         )}
       </div>
     )},
-    { key: 'updated_at', header: 'Updated', render: (row) => formatDate(row.updated_at) },
   ];
 
   return (
@@ -288,8 +287,6 @@ export function Documents() {
           loading={loading}
           emptyMessage="No documents found. Upload your first document to get started."
           onRowClick={handleViewContent}
-          selectable
-          selectedRows={[]}
         />
         {totalPages > 1 && (
           <Pagination
@@ -448,14 +445,6 @@ export function Documents() {
               <div className="view-content__meta-item">
                 <span className="view-content__meta-label">Chunks</span>
                 <span className="view-content__meta-value">{viewDoc.chunk_count || 0}</span>
-              </div>
-              <div className="view-content__meta-item">
-                <span className="view-content__meta-label">Created</span>
-                <span className="view-content__meta-value">{formatDate(viewDoc.created_at)}</span>
-              </div>
-              <div className="view-content__meta-item">
-                <span className="view-content__meta-label">Updated</span>
-                <span className="view-content__meta-value">{formatDate(viewDoc.updated_at)}</span>
               </div>
               {(viewDoc.tags || []).length > 0 && (
                 <div className="view-content__meta-item">
